@@ -1,0 +1,332 @@
+/*
+|======================================================
+| 1. تعريف الألوان والخصائص
+|======================================================
+| مهمة الشفرة: تحديد المتغيرات (Variables) لسهولة إدارة الألوان والثوابت البصرية في المشروع بالكامل.
+*/
+:root {
+  --primary-color: #00BFA5; 
+  --primary-darker: #00A38D;
+  --secondary-color: #383838;
+  --light-bg: #F0F2F5; 
+  --light-accent: #E0FFF0; 
+  --error-color: #E74C3C;
+  --error-light: #FFECEC;
+  --success-color: #155724; 
+  --success-bg: #D4EDDA; 
+  --border-color: #DDD;
+  --border-radius: 12px;
+  --white-color: #ffffff;
+  --text-color-dark: var(--secondary-color);
+}
+
+/*
+|======================================================
+| 2. الإعدادات العامة للجسم والصفحة
+|======================================================
+| مهمة الشفرة: تطبيق الخط الافتراضي (Tajawal)، وتحديد الهيكل الأساسي للصفحة كـ Flex Container لملء الشاشة بالكامل (100vh).
+*/
+body {
+  font-family: 'Tajawal', Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: var(--light-bg);
+  color: var(--text-color-dark);
+}
+
+/*
+|======================================================
+| 3. شاشة التحميل (Loader)
+|======================================================
+| مهمة الشفرة: وضع الـ Loader في منتصف الشاشة وثبته فوق كل العناصر (position: fixed, z-index: 9999)، وإضافة انتقال سلس (opacity transition).
+*/
+#loader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255,255,255,0.95);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--primary-color);
+  transition: opacity 0.5s ease;
+}
+
+/*
+|======================================================
+| 4. تنسيقات الـ Header والبحث والقائمة المنسدلة
+|======================================================
+| مهمة الشفرة: تنسيق شريط العنوان العلوي (Header) وتحديد شكل وألوان الأزرار وحقول الإدخال، مع تأثيرات Hover.
+*/
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: var(--primary-color);
+  color: var(--white-color);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  min-height: 50px;
+}
+
+.header .search-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header input[type="text"] {
+  padding: 8px 12px;
+  border-radius: 5px;
+  border: 1px solid var(--border-color);
+  outline: none;
+  font-size: 1rem;
+}
+
+.header button {
+  padding: 8px 15px;
+  background-color: var(--white-color);
+  color: var(--primary-color);
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.3s, color 0.3s;
+}
+
+.header button:hover {
+  background-color: var(--primary-darker);
+  color: var(--white-color);
+}
+
+.header select {
+  padding: 8px 12px;
+  border-radius: 5px;
+  border: none;
+  outline: none;
+  font-weight: bold;
+  cursor: pointer;
+  appearance: none;
+  background: var(--white-color) url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24"><path fill="%2300BFA5" d="M7 10l5 5 5-5z"/></svg>') no-repeat right 10px center;
+  background-size: 12px;
+  padding-left: 30px;
+}
+
+/*
+|======================================================
+| 5. تنسيقات منطقة المحتوى الرئيسية (Content Area)
+|======================================================
+| مهمة الشفرة: جعل منطقة المحتوى مرنة (Flex: 1) لتملأ المساحة المتبقية، وتجهيزها لاستقبال محتوى التبويبات (position: relative).
+*/
+.content {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  position: relative;
+  min-height: 300px;
+}
+
+/*
+|======================================================
+| 6. تنسيقات التبويبات السفلية (Tabs)
+|======================================================
+| مهمة الشفرة: إنشاء شريط التبويبات في الأسفل، وتحديد شكل التبويبة النشطة (Active) وغير النشطة، مع دعم التمرير الأفقي (overflow-x: auto).
+*/
+.tabs {
+  display: flex;
+  overflow-x: auto;
+  justify-content: flex-start;
+  background: var(--primary-color);
+  border-top: 2px solid var(--primary-darker);
+  box-shadow: 0 -3px 8px rgba(0,0,0,0.2);
+  padding: 0 5px 0 5px;
+  scrollbar-width: none;
+}
+
+.tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.tab {
+  flex: 0 0 auto;
+  padding: 12px 25px;
+  cursor: pointer;
+  color: var(--white-color);
+  font-weight: bold;
+  transition: all 0.3s ease;
+  border-radius: var(--border-radius) var(--border-radius) 0 0;
+  margin: 0 5px;
+  white-space: nowrap;
+}
+
+.tab:hover:not(.active) {
+  background-color: var(--primary-darker);
+}
+
+.tab.active {
+  background-color: var(--light-bg);
+  color: var(--primary-color);
+  box-shadow: 0 -4px 10px rgba(0,0,0,0.3);
+  margin-bottom: 0;
+  z-index: 10;
+}
+
+/*
+|======================================================
+| 7. تنسيقات محتوى التبويبات والانتقالات
+|======================================================
+| مهمة الشفرة: تطبيق تأثير الانتقال السلس (Fade-in & Translate) عند التبديل بين محتويات التبويبات، مع استخدام Position المطلق والنسبي للتراكب.
+*/
+.tab-content {
+  display: none; /* إخفاء المحتوى بشكل افتراضي */
+  opacity: 0;
+  position: absolute;
+  top: 0;
+  right: 20px;
+  left: 20px;
+  bottom: 0;
+  z-index: 0;
+  transform: translateX(20px);
+  transition: opacity 0.4s ease-in-out, transform 0.4s ease-in-out;
+  pointer-events: none;
+  padding-top: 20px;
+  overflow-y: auto;
+}
+
+.tab-content.active {
+  display: block;
+  opacity: 1;
+  transform: translateX(0);
+  z-index: 1;
+  pointer-events: auto;
+  position: relative;
+  padding-top: 0;
+}
+
+/*
+|======================================================
+| 8. الأنماط العامة للعناوين والنصوص
+|======================================================
+| مهمة الشفرة: تنسيق العناصر النصية داخل المحتوى.
+*/
+h2 { color: var(--primary-darker); }
+p { line-height: 1.6; color: var(--text-color-dark); }
+
+
+/*
+|======================================================
+| 9. استعلامات الوسائط (Mobile Responsiveness)
+|======================================================
+| مهمة الشفرة: تكييف التصميم ليناسب الشاشات الصغيرة (بعرض 600 بكسل أو أقل)، حيث يتم تحويل الـ Header إلى عمودي وتحسين التباعد.
+*/
+@media (max-width: 600px) {
+  body { font-size: 14px; }
+  .header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding: 10px 15px;
+  }
+  .header .search-container { width: 100%; justify-content: space-between; }
+  .header input[type="text"], .header button, .header select {
+    padding: 7px 10px;
+    font-size: 0.9rem;
+    flex-grow: 1;
+  }
+  .header select { width: 100%; }
+  .tab { padding: 10px 15px; font-size: 0.9rem; margin: 0 3px; }
+  .content { padding: 15px; }
+  .tab-content { right: 15px; left: 15px; padding-top: 15px; }
+  .tab-content.active { padding-top: 0; }
+}
+
+
+
+
+
+
+
+
+
+
+/* 🌿 تنسيقات عرض بطاقات الطلاب */
+
+.students-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+  gap: 1rem;
+  margin-top: 20px;
+  padding: 10px;
+}
+
+.student-card {
+  background-color: var(--white-color, #fff);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius); /* استخدام متغير الأبعاد */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.06);
+  padding: 16px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.student-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15); /* ظل أقوى عند التمرير */
+}
+
+.student-card h3 {
+  margin-bottom: 8px;
+  font-size: 1.1rem;
+  color: var(--secondary-color); /* استخدام اللون الثانوي للعناوين */
+  font-weight: bold;
+}
+
+.student-card .course {
+  font-size: 0.95rem;
+  color: var(--primary-color);
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.student-card .info {
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: var(--text-color-dark);
+}
+
+.student-card .label {
+  font-weight: 600;
+  color: var(--primary-darker);
+}
+
+/* تنسيق الـ Loader لتظهر في منتصف الحاوية */
+.loader-placeholder {
+    width: 100%;
+    text-align: center;
+    padding: 50px 0;
+}
+
+.loader {
+  color: var(--primary-color);
+  font-weight: bold;
+  font-size: 1.1rem;
+  display: inline-block;
+}
+
+.loader::after {
+  content: " ⏳";
+  animation: spin 1s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
