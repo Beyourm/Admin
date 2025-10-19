@@ -1,0 +1,125 @@
+<h2>📋 قائمة الطلاب المسجلين</h2>
+
+<div id="students-container" class="students-container">
+  <div class="loader-placeholder">
+    <div class="loader">جاري جلب البيانات...</div>
+  </div>
+</div>
+
+<script>
+// تحديد الرابط API
+const DATA_URL = 'https://script.google.com/macros/s/AKfycbxTAdC8g-J42sbnCfIxe2_Z286N5v7vKVhrL9iyJ_b3JzRMIpsClyPWqYV7usFjiIKmVQ/exec';
+
+// وظيفة أمان لمنع هجمات XSS
+function escapeHTML(str) {
+  if (!str && str !== 0) return '-';
+  return str.toString().replace(/[&<>"']/g, match => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[match]));
+}
+
+// ---------------- وظيفة معالجة تنسيق التاريخ ----------------
+function formatGoogleSheetDate(dateString) {
+    if (!dateString) return 'غير متوفر';
+
+    // 1. معالجة رموز اليونيكود غير القياسية (التي تسبب Invalid Date)
+    // - استبدال الرموز غير المرئية (‏) بمسافة فارغة
+    // - استبدال الفواصل بين التاريخ والوقت بمسافة (إذا لزم الأمر)
+    let cleanedDate = dateString
+        .replace(/‏/g, '') // إزالة رمز RLM (Right-to-Left Mark)
+        .replace(/م/g, 'PM').replace(/ص/g, 'AM') // تحويل م/ص إلى AM/PM
+        .replace(/\//g, '-') // استبدال / بـ - لتحسين التوافق
+        .replace(/\./g, ' '); // إزالة أي نقاط غير ضرورية
+
+    // محاولة إنشاء كائن Date
+    const dateObj = new Date(cleanedDate);
+
+    // التحقق مما إذا كان التاريخ صالحاً
+    if (isNaN(dateObj)) {
+        // إذا فشل التحويل التلقائي، حاول معالجة التنسيق يدوياً (Day/Month/Year)
+        const parts = cleanedDate.match(/(\d+)[-/](\d+)[-/](\d+)\s(.*)/); // محاولة فصل التاريخ والوقت
+        if (parts && parts.length === 5) {
+            // تنسيق Google Sheets هو غالباً Month/Day/Year أو Day/Month/Year
+            // نفترض Day/Month/Year ونقوم بتجميعها
+            const [_, day, month, year, time] = parts;
+            const isoFormatted = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')} ${time}`;
+            const manualDateObj = new Date(isoFormatted);
+             if (!isNaN(manualDateObj)) {
+                 return manualDateObj.toLocaleDateString('ar-EG');
+             }
+        }
+        return 'Invalid Date'; // إذا فشلت جميع المحاولات
+    }
+
+    // إذا كان التاريخ صالحاً، قم بتنسيقه
+    return dateObj.toLocaleDateString('ar-EG');
+}
+
+
+async function loadStudentsData() {
+  const container = document.getElementById('students-container');
+  
+  if (!container) {
+      console.error('Students container element not found.');
+      return; 
+  }
+  
+  container.style.display = 'block';
+  container.innerHTML = `<div class="loader-placeholder"><div class="loader">جاري جلب البيانات...</div></div>`;
+
+  try {
+    const response = await fetch(DATA_URL);
+    if (!response.ok) {
+        throw new Error(`فشل الاتصال بالخادم. الحالة: ${response.status}`);
+    }
+
+    const students = await response.json();
+
+    if (!Array.isArray(students) || students.length === 0) {
+      container.style.display = 'block';
+      container.innerHTML = `<p style="text-align:center; color: var(--text-color-dark);">لا توجد بيانات طلاب مسجلين لعرضها حالياً.</p>`;
+      return;
+    }
+
+    // إنشاء البطاقات
+    const cardsHtml = students.map(s => {
+      // استخدام الدالة الجديدة لمعالجة التاريخ
+      const date = formatGoogleSheetDate(s['تاريخ التسجيل']); 
+      
+      // تنسيق اسم الدورة المطلوب
+      const courseName = `دورة :ـ ${escapeHTML(s['اسم الدورة'])}`;
+
+      const whatsappLink = s['رقم الواتساب']
+        ? `<a href="https://wa.me/${s['رقم الواتساب'].toString().replace(/\s/g, '').replace('+', '')}" target="_blank" style="color: var(--primary-color); text-decoration: none;">${escapeHTML(s['رقم الواتساب'])}</a>`
+        : escapeHTML(s['رقم الواتساب']);
+
+      return `
+        <div class="student-card">
+          <div class="course">${courseName}</div> <h3>${escapeHTML(s['الاسم'])}</h3>
+          <div class="info">
+            <div><span class="label">البلد:</span> ${escapeHTML(s['البلد'])}</div>
+            <div><span class="label">العمر:</span> ${escapeHTML(s['العمر'])}</div>
+            <div><span class="label">الواتساب:</span> ${whatsappLink}</div>
+            <div><span class="label">تاريخ التسجيل:</span> ${date}</div> <div><span class="label">المسوّق:</span> ${escapeHTML(s['معرّف المسوّق'])}</div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    // تحديث المحتوى وتفعيل عرض الـ Grid
+    container.style.display = 'grid'; 
+    container.innerHTML = cardsHtml;
+
+  } catch (err) {
+    console.error('Error fetching student data:', err);
+    container.style.display = 'block';
+    container.innerHTML = `<p style="text-align:center; color: var(--error-color); background: var(--error-light); padding: 10px; border-radius: 8px;">
+        حدث خطأ أثناء جلب البيانات: ${err.message}.
+    </p>`;
+  }
+}
+
+// ---------------- التنفيذ الفوري والموثوق ----------------
+setTimeout(loadStudentsData, 0); 
+
+</script>
